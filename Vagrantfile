@@ -86,13 +86,17 @@ Vagrant.configure("2") do |config|
     echo "export PATH=$PATH:/usr/local/go/bin" | tee -a /root/.bashrc
     echo "export GOPATH=/container-demo" | tee -a /root/.bashrc
 
-    # gerando rootfs para o ubuntu-trusty e debian-jessie
-    debootstrap --verbose --foreign --variant="minbase" --include="iproute,iputils-ping,vim,dialog,apt,ca-certificates,apt-transport-https" --arch="amd64" "trusty" /rootfs-trusty
-    debootstrap --verbose --foreign --include="iproute,iputils-ping,vim,dialog,apt,ca-certificates,apt-transport-https" --arch="armhf" "jessie" /rootfs-jessie 
-    cp /usr/bin/qemu-arm-static /rootfs-jessie/usr/bin/
-    cp /etc/resolv.conf /rootfs-jessie/etc/
-    DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true LC_ALL=C LANGUAGE=C LANG=C chroot rootfs-jessie /debootstrap/debootstrap --second-stage
-    DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true LC_ALL=C LANGUAGE=C LANG=C chroot rootfs-jessie dpkg --configure -a
+    # descompactando os demais rootfs (alpine, debian, ubuntu)
+    mkdir -p /rootfs-alpine/
+    mkdir -p /rootfs-centos/proc/
+    mkdir -p /rootfs-debian/
+    mkdir -p /rootfs-fedora/proc/
+    mkdir -p /rootfs-ubuntu/
+    tar -xvf /container-demo/alpine-rootfs.tar -C /rootfs-alpine/
+    tar -xvf /container-demo/centos-rootfs.tar -C /rootfs-centos/
+    tar -xvf /container-demo/debian-rootfs.tar -C /rootfs-debian/
+    tar -xvf /container-demo/fedora-rootfs.tar -C /rootfs-fedora/
+    tar -xvf /container-demo/ubuntu-rootfs.tar -C /rootfs-ubuntu/
 
   SHELL
 end
