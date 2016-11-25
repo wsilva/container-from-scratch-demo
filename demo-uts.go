@@ -1,45 +1,52 @@
 package main
 
 import (
-    "fmt"
-    "os"
-    "os/exec"
-    "syscall"
+	"fmt"
+	"os"
+	"os/exec"
+	"syscall"
 )
 
 // go run demo.go run commands arguments
+// ou go build demo.go && ./demo run commands arguments
+// like docker run [options] image [commands and arguments]
 func main() {
 
-    switch os.Args[1] {
-    case "run":
-        defer exiting()
-        run()
-    default:
-        panic("Shit just happened...")
-    }
-
+	switch os.Args[1] {
+	case "run":
+		// debug message
+		defer exiting()
+		run()
+	default:
+		panic("Shit just happened...")
+	}
 }
 
 func exiting() {
-    fmt.Printf("Saindo do Container\n")
+	fmt.Printf("Saindo do Container\n")
 }
 
 func run() {
-    fmt.Printf("Rodando %v\n", os.Args[2:])
 
-    cmd := exec.Command(os.Args[2], os.Args[3:]...)
-    cmd.Stdin = os.Stdin
-    cmd.Stdout = os.Stdout
-    cmd.Stderr = os.Stderr
-    cmd.SysProcAttr = &syscall.SysProcAttr{
-        Cloneflags: syscall.CLONE_NEWUTS,
-    }
+	// debug message
+	fmt.Printf("Rodando %v sob o PID %d\n", os.Args[2:], os.Getpid())
 
-    doStuff(cmd.Run())
+	//parsing the command
+	cmd := exec.Command(os.Args[2], os.Args[3:]...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	// creating new UTS namespace
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Cloneflags: syscall.CLONE_NEWUTS,
+	}
+
+	doStuff(cmd.Run())
 }
 
 func doStuff(err error) {
-    if err != nil {
-        panic(err)
-    }
+	if err != nil {
+		panic(err)
+	}
 }
