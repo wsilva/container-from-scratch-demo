@@ -29,15 +29,19 @@ $ vagrant up
 
 This first step will take a while at the first time. The clean Ubuntu trusty VM will:
 
- - Install debootstrap, and another tools to generate rootfs
  - Install and configure Go
- - Create rootfs for ubuntu trusty
- - Create rootfs for debian jessie
+ - Untar the root file systems of each image
 
 If it fails due to internet conection we can re-run with 
 
 ~~~bash
 $ vagrant up --provision
+~~~
+
+If the box become outdated we can just run
+
+~~~bash
+$ vagrant box update
 ~~~
 
 ### 2. Access the Ubuntu VM
@@ -86,6 +90,18 @@ demo
 root@vagrant-ubuntu-trusty-64:/container-demo#
 ~~~
 
+We can also compile then use our binary
+
+~~~bash
+root@vagrant-ubuntu-trusty-64:/container-demo# go build demo.go
+root@vagrant-ubuntu-trusty-64:/container-demo# demo run /bin/bash
+Rodando [/bin/bash]
+root@vagrant-ubuntu-trusty-64:/container-demo# exit
+exit
+Saindo do Container
+root@vagrant-ubuntu-trusty-64:/container-demo# 
+~~~
+
 We can notice that hostname was changed also in the host
 
 ### 4. Second example
@@ -116,20 +132,20 @@ We can notice some isolation since hostname was changed inside the container but
 Running a bash with UTS and PID namespaces isolated
 
 ~~~bash
-root@demo:/container-demo# go run demo-pid.go run trusty ps aux
-Rodando [ps aux] as PID 1 usando imagem trusty
+root@demo:/container-demo# go run demo-pid.go run debian ps aux
+Rodando [ps aux] as PID 1 usando imagem debian
 USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
 0            1  0.0  0.1   3240   956 ?        Sl+  19:23   0:00 /proc/self/exe
 0            4  0.0  0.2  15568  1160 ?        R+   19:23   0:00 ps aux
 Saindo do Container
-root@demo:/container-demo# go run demo-pid.go run trusty cat /etc/issue
-Rodando [cat /etc/issue] as PID 1 usando imagem trusty
+root@demo:/container-demo# go run demo-pid.go run ubuntu cat /etc/issue
+Rodando [cat /etc/issue] as PID 1 usando imagem ubuntu
 Ubuntu 14.04 LTS \n \l
 
 Saindo do Container
 root@demo:/container-demo#
-root@demo:/container-demo# go run demo-pid.go run trusty ls -al
-Rodando [ls -al] as PID 1 usando imagem trusty
+root@demo:/container-demo# go run demo-pid.go run ubuntu ls -al
+Rodando [ls -al] as PID 1 usando imagem ubuntu
 total 72
 drwxr-xr-x 19 0 0 4096 May 13  2013 .
 drwxr-xr-x 19 0 0 4096 May 13  2013 ..
@@ -140,21 +156,21 @@ drwxr-xr-x 11 0 0 4096 Apr 11  2014 var
 Saindo do Container
 root@demo:/container-demo#
 root@demo:/container-demo#
-root@demo:/container-demo# go run demo-pid.go run jessie ps aux
-Rodando [ps aux] as PID 1 usando imagem jessie
+root@demo:/container-demo# go run demo-pid.go run debian ps aux
+Rodando [ps aux] as PID 1 usando imagem debian
 USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
 root         1  0.0  0.1   3240   952 ?        Sl+  19:25   0:00 /proc/self/exe
 root         4  0.0  0.9 4137480 4712 ?        R+   18:55   0:00 /usr/bin/qemu-a
 Saindo do Container
 root@demo:/container-demo#
-root@demo:/container-demo# go run demo-pid.go run jessie cat /etc/issue
-Rodando [cat /etc/issue] as PID 1 usando imagem jessie
+root@demo:/container-demo# go run demo-pid.go run debian cat /etc/issue
+Rodando [cat /etc/issue] as PID 1 usando imagem debian
 Debian GNU/Linux 8 \n \l
 
 Saindo do Container
 root@demo:/container-demo#
-root@demo:/container-demo# go run demo-pid.go run jessie ls -al
-Rodando [ls -al] as PID 1 usando imagem jessie
+root@demo:/container-demo# go run demo-pid.go run debian ls -al
+Rodando [ls -al] as PID 1 usando imagem debian
 total 76
 drwxr-xr-x 20 root root 4096 Oct 24 18:43 .
 drwxr-xr-x 20 root root 4096 Oct 24 18:43 ..
@@ -170,9 +186,12 @@ We can notice that the first proccess running inside the container have *PID=1* 
 We can also show the rootfs from each image in the host (my VM in this case)
 
 ~~~bash
-root@demo:/container-demo# ls -al / | grep rootfs
-drwxr-xr-x 20 root    root     4096 Oct 24 18:43 rootfs-jessie
-drwxr-xr-x 19 root    root     4096 May 13  2013 rootfs-trusty
+root@demo:/container-demo# ls / | grep rootfs
+alpine-rootfs.tar
+centos-rootfs.tar
+debian-rootfs.tar
+fedora-rootfs.tar
+ubuntu-rootfs.tar
 root@demo:/container-demo#
 ~~~
 
