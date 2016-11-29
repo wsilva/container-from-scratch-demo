@@ -92,11 +92,11 @@ Vagrant.configure("2") do |config|
     mkdir -p /rootfs-debian/
     mkdir -p /rootfs-fedora/proc/
     mkdir -p /rootfs-ubuntu/
-    tar -xzvf /container-demo/alpine-rootfs.tar -C /rootfs-alpine/
-    tar -xzvf /container-demo/centos-rootfs.tar -C /rootfs-centos/
-    tar -xzvf /container-demo/debian-rootfs.tar -C /rootfs-debian/
-    tar -xzvf /container-demo/fedora-rootfs.tar -C /rootfs-fedora/
-    tar -xzvf /container-demo/ubuntu-rootfs.tar -C /rootfs-ubuntu/
+    tar -xzvf /container-demo/alpine-rootfs.tar.gz -C /rootfs-alpine/
+    tar -xzvf /container-demo/centos-rootfs.tar.gz -C /rootfs-centos/
+    tar -xzvf /container-demo/debian-rootfs.tar.gz -C /rootfs-debian/
+    tar -xzvf /container-demo/fedora-rootfs.tar.gz -C /rootfs-fedora/
+    tar -xzvf /container-demo/ubuntu-rootfs.tar.gz -C /rootfs-ubuntu/
 
   SHELL
 end
