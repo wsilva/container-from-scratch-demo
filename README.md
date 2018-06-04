@@ -27,10 +27,11 @@ Need to thank Liz Rice (@lizrice) and as she mention at the talk, Julian Friedma
 $ vagrant up
 ~~~
 
-This first step will take a while at the first time. The clean Ubuntu trusty VM will:
+This first step will take a while at the first time. The clean Ubuntu Xenial VM will:
 
- - Install and configure Go
- - Untar the root file systems of each image
+ - Install and configure Go (1.10.2)
+ - Untar the root file systems of each image on /
+    - we can check with ```ls / | grep rootfs```
 
 If it fails due to internet conection we can re-run with 
 
@@ -52,165 +53,46 @@ Accessing it.
 $ vagrant ssh
 ~~~
 
-Going to `/container-demo` and run stuff as superuser.
+Run stuff as superuser and go to `/demo`.
 
 ~~~bash
-vagrant@vagrant-ubuntu-trusty-64:~$ sudo -i
-root@vagrant-ubuntu-trusty-64:~# cd /container-demo/
-root@vagrant-ubuntu-trusty-64:/container-demo#
+vagrant@ubuntu-xenial:~$ sudo -i
+root@ubuntu-xenial:~# cd /demo/
+root@ubuntu-xenial:/demo#
 ~~~
 
-### 3. First example
+### 3. First example - No isolation
 
-run an echo command from inside a container
+Build and run an echo command from inside a container
 
 ~~~bash
-root@vagrant-ubuntu-trusty-64:/container-demo# go run demo.go run echo ola
-Rodando [echo ola]
-ola
-Saindo do Container
-root@vagrant-ubuntu-trusty-64:/container-demo#
+root@ubuntu-xenial:/demo# go build demo.go
+root@ubuntu-xenial:/demo# ./demo run echo "Qualquer coisa / Anything"
+--Entrando no conteiner / Get into container--
+--Rodando comando [echo Qualquer coisa / Anything] / Running command %!v(MISSING) --
+Qualquer coisa / Anything
+--Saindo do conteiner / Exiting container--
+root@ubuntu-xenial:/demo#
 ~~~
 
 Run a bash with no isolation from inside a container
 
 ~~~bash
-root@vagrant-ubuntu-trusty-64:/container-demo# go run demo.go run /bin/bash
-Rodando [/bin/bash]
-root@vagrant-ubuntu-trusty-64:/container-demo# hostname
-vagrant-ubuntu-trusty-64
-root@vagrant-ubuntu-trusty-64:/container-demo# hostname demo
-root@vagrant-ubuntu-trusty-64:/container-demo# hostname
+root@ubuntu-xenial:/demo# ./demo run /bin/bash
+--Entrando no conteiner / Get into container--
+--Rodando comando [/bin/bash] / Running command [/bin/bash] --
+root@ubuntu-xenial:/demo# hostname
+ubuntu-xenial
+root@ubuntu-xenial:/demo# hostname demo
+root@ubuntu-xenial:/demo# hostname
 demo
-root@vagrant-ubuntu-trusty-64:/container-demo# exit
+root@ubuntu-xenial:/demo# exit
 exit
-Saindo do Container
-root@vagrant-ubuntu-trusty-64:/container-demo# hostname
+--Saindo do conteiner / Exiting container--
+root@ubuntu-xenial:/demo# hostname
 demo
-root@vagrant-ubuntu-trusty-64:/container-demo#
-~~~
-
-We can also compile then use our binary
-
-~~~bash
-root@vagrant-ubuntu-trusty-64:/container-demo# go build demo.go
-root@vagrant-ubuntu-trusty-64:/container-demo# demo run /bin/bash
-Rodando [/bin/bash]
-root@vagrant-ubuntu-trusty-64:/container-demo# exit
-exit
-Saindo do Container
-root@vagrant-ubuntu-trusty-64:/container-demo# 
+root@ubuntu-xenial:/demo#
 ~~~
 
 We can notice that hostname was changed also in the host
 
-### 4. Second example
-
-Runnig a bash with UTS namespace isolation
-
-~~~bash
-root@vagrant-ubuntu-trusty-64:/container-demo#
-root@vagrant-ubuntu-trusty-64:/container-demo# go run demo-uts.go run /bin/bash
-Rodando [/bin/bash]
-root@demo:/container-demo# hostname
-demo
-root@demo:/container-demo# hostname yada
-root@demo:/container-demo# hostname
-yada
-root@demo:/container-demo# exit
-exit
-Saindo do Container
-root@vagrant-ubuntu-trusty-64:/container-demo# hostname
-demo
-root@vagrant-ubuntu-trusty-64:/container-demo#
-~~~
-
-We can notice some isolation since hostname was changed inside the container but not in the host. 
-
-### 5. Third example
-
-Running a bash with UTS and PID namespaces isolated
-
-~~~bash
-root@demo:/container-demo# go run demo-pid.go run debian ps aux
-Rodando [ps aux] as PID 1 usando imagem debian
-USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-0            1  0.0  0.1   3240   956 ?        Sl+  19:23   0:00 /proc/self/exe
-0            4  0.0  0.2  15568  1160 ?        R+   19:23   0:00 ps aux
-Saindo do Container
-root@demo:/container-demo# go run demo-pid.go run ubuntu cat /etc/issue
-Rodando [cat /etc/issue] as PID 1 usando imagem ubuntu
-Ubuntu 14.04 LTS \n \l
-
-Saindo do Container
-root@demo:/container-demo#
-root@demo:/container-demo# go run demo-pid.go run ubuntu ls -al
-Rodando [ls -al] as PID 1 usando imagem ubuntu
-total 72
-drwxr-xr-x 19 0 0 4096 May 13  2013 .
-drwxr-xr-x 19 0 0 4096 May 13  2013 ..
-drwxr-xr-x  2 0 0 4096 Apr 16  2014 bin
-drwxr-xr-x  2 0 0 4096 Apr 10  2014 boot
-...
-drwxr-xr-x 11 0 0 4096 Apr 11  2014 var
-Saindo do Container
-root@demo:/container-demo#
-root@demo:/container-demo#
-root@demo:/container-demo# go run demo-pid.go run debian ps aux
-Rodando [ps aux] as PID 1 usando imagem debian
-USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-root         1  0.0  0.1   3240   952 ?        Sl+  19:25   0:00 /proc/self/exe
-root         4  0.0  0.9 4137480 4712 ?        R+   18:55   0:00 /usr/bin/qemu-a
-Saindo do Container
-root@demo:/container-demo#
-root@demo:/container-demo# go run demo-pid.go run debian cat /etc/issue
-Rodando [cat /etc/issue] as PID 1 usando imagem debian
-Debian GNU/Linux 8 \n \l
-
-Saindo do Container
-root@demo:/container-demo#
-root@demo:/container-demo# go run demo-pid.go run debian ls -al
-Rodando [ls -al] as PID 1 usando imagem debian
-total 76
-drwxr-xr-x 20 root root 4096 Oct 24 18:43 .
-drwxr-xr-x 20 root root 4096 Oct 24 18:43 ..
-drwxr-xr-x  2 root root 4096 Oct 24 18:40 bin
-...
-drwxr-xr-x 11 root root 4096 Oct 24 18:37 var
-Saindo do Container
-root@demo:/container-demo#
-~~~
-
-We can notice that the first proccess running inside the container have *PID=1* due to a new PID namespace
-
-We can also show the rootfs from each image in the host (my VM in this case)
-
-~~~bash
-root@demo:/container-demo# ls / | grep rootfs
-alpine-rootfs.tar
-centos-rootfs.tar
-debian-rootfs.tar
-fedora-rootfs.tar
-ubuntu-rootfs.tar
-root@demo:/container-demo#
-~~~
-
-
-### 6. To shut down
-
-To leave VM shell
-
-~~~bash
-root@demo:/container-demo# exit
-logout
-vagrant@vagrant-ubuntu-trusty-64:~$ exit
-logout
-Connection to 127.0.0.1 closed.
-~~~
-
-Then shut the VM down
-
-~~~bash 
-$ vagrant halt
-==> containerdemo: Attempting graceful shutdown of VM...
-~~~

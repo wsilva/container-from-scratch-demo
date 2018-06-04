@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "ubuntu/xenial64"
 
   config.vm.define :containerdemo do |t|
   end
@@ -41,7 +41,7 @@ Vagrant.configure("2") do |config|
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
-  config.vm.synced_folder ".", "/container-demo"
+  config.vm.synced_folder ".", "/demo"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -73,18 +73,19 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     # ferramentas para gerar o rootfs
     apt-get update
-    apt-get install -y qemu-user-static debootstrap binfmt-support
+    apt-get upgrade -y
+    # apt-get install -y qemu-user-static debootstrap binfmt-support
     
     # instalando go
-    wget https://storage.googleapis.com/golang/go1.7.3.linux-amd64.tar.gz
-    tar -zxvf go1.7.3.linux-amd64.tar.gz -C /usr/local/
-    rm -f go1.7.3.linux-amd64.tar.gz
+    wget https://dl.google.com/go/go1.10.2.linux-amd64.tar.gz
+    tar -zxvf go1.10.2.linux-amd64.tar.gz -C /usr/local/
+    rm -f go1.10.2.linux-amd64.tar.gz
     echo "export GOROOT=/usr/local/go" | tee -a /home/vagrant/.bashrc
     echo "export PATH=$PATH:/usr/local/go/bin" | tee -a /home/vagrant/.bashrc
-    echo "export GOPATH=/container-demo" | tee -a /home/vagrant/.bashrc
+    echo "export GOPATH=/demo" | tee -a /home/vagrant/.bashrc
     echo "export GOROOT=/usr/local/go" | tee -a /root/.bashrc
     echo "export PATH=$PATH:/usr/local/go/bin" | tee -a /root/.bashrc
-    echo "export GOPATH=/container-demo" | tee -a /root/.bashrc
+    echo "export GOPATH=/demo" | tee -a /root/.bashrc
 
     # descompactando os demais rootfs (alpine, debian, ubuntu)
     mkdir -p /rootfs-alpine/
@@ -92,11 +93,11 @@ Vagrant.configure("2") do |config|
     mkdir -p /rootfs-debian/
     mkdir -p /rootfs-fedora/proc/
     mkdir -p /rootfs-ubuntu/
-    tar -xzvf /container-demo/alpine-rootfs.tar.gz -C /rootfs-alpine/
-    tar -xzvf /container-demo/centos-rootfs.tar.gz -C /rootfs-centos/
-    tar -xzvf /container-demo/debian-rootfs.tar.gz -C /rootfs-debian/
-    tar -xzvf /container-demo/fedora-rootfs.tar.gz -C /rootfs-fedora/
-    tar -xzvf /container-demo/ubuntu-rootfs.tar.gz -C /rootfs-ubuntu/
+    tar -xzvf /demo/alpine-rootfs.tar.gz -C /rootfs-alpine/
+    tar -xzvf /demo/centos-rootfs.tar.gz -C /rootfs-centos/
+    tar -xzvf /demo/debian-rootfs.tar.gz -C /rootfs-debian/
+    tar -xzvf /demo/fedora-rootfs.tar.gz -C /rootfs-fedora/
+    tar -xzvf /demo/ubuntu-rootfs.tar.gz -C /rootfs-ubuntu/
 
   SHELL
 end
