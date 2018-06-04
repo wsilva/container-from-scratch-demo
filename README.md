@@ -135,3 +135,42 @@ exit
 root@ubuntu-xenial:/demo#
 ~~~
 
+### 6. Fourth Example - define another rootfs
+
+Let's rebuild and run choosing one of the 5 rootfs available: alpine, centos, debian, fedora or ubuntu.
+
+~~~bash
+root@ubuntu-xenial:/demo# go build demo.go
+root@ubuntu-xenial:/demo# ./demo run debian bash
+--Entrando no conteiner / Get into container--
+--Imagem usada debian / Image in use debian --
+--Rodando comando [bash] / Running command [bash] --
+root@container:/# cat /etc/issue
+Debian GNU/Linux 8 \n \l
+
+root@container:/# exit
+exit
+--Saindo do conteiner / Exiting container--
+root@ubuntu-xenial:/demo#
+root@ubuntu-xenial:/demo# ./demo run alpine sh
+--Entrando no conteiner / Get into container--
+--Imagem usada alpine / Image in use alpine --
+--Rodando comando [sh] / Running command [sh] --
+/ # cat /etc/issue
+Welcome to Alpine Linux 3.4
+Kernel \r on an \m (\l)
+~~~
+
+
+Befor leaving alpine container let's write a file and check if is written on the host also.
+
+~~~bash
+/ # touch /random-file
+/ # exit
+--Saindo do conteiner / Exiting container--
+root@ubuntu-xenial:/demo# ls /rootfs-alpine/
+bin  dev  etc  home  lib  linuxrc  media  mnt  proc  random-file  root  run  sbin  srv  sys  tmp  usr  var
+root@ubuntu-xenial:/demo#
+~~~
+
+Yes, the random-file exists inside and outside of the container.

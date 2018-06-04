@@ -21,7 +21,8 @@ func main() {
 
 func run() {
 	fmt.Println("--Entrando no conteiner / Get into container--")
-	fmt.Printf("--Rodando comando %v / Running command %v --\n", os.Args[2:], os.Args[2:])
+	fmt.Printf("--Imagem usada %v / Image in use %v --\n", os.Args[2], os.Args[2])
+	fmt.Printf("--Rodando comando %v / Running command %v --\n", os.Args[3:], os.Args[3:])
 
 	cmd := exec.Command("/proc/self/exe", append([]string{"fork"}, os.Args[2:]...)...)
 	cmd.Stdin = os.Stdin
@@ -36,12 +37,15 @@ func run() {
 
 func fork() {
 
-	cmd := exec.Command(os.Args[2], os.Args[3:]...)
+	cmd := exec.Command(os.Args[3], os.Args[4:]...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
 	doStuff(syscall.Sethostname([]byte("container")))
+	rootfs := "/rootfs-" + os.Args[2]
+	doStuff(syscall.Chroot(rootfs))
+	doStuff(os.Chdir("/"))
 	doStuff(cmd.Run())
 }
 
