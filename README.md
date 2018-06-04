@@ -96,3 +96,28 @@ root@ubuntu-xenial:/demo#
 
 We can notice that hostname was changed also in the host
 
+### 4. Second Example - Isolating UTS
+
+Let's rebuild and run bash again but now with UTS (Unix Time Sharing) isolated
+
+~~~bash
+root@ubuntu-xenial:/demo# go build demo.go
+root@ubuntu-xenial:/demo# ./demo run /bin/bash
+--Entrando no conteiner / Get into container--
+--Rodando comando [/bin/bash] / Running command [/bin/bash] --
+root@ubuntu-xenial:/demo# hostname
+demo
+root@ubuntu-xenial:/demo# hostname yabadabadoo
+root@ubuntu-xenial:/demo# hostname
+yabadabadoo
+root@ubuntu-xenial:/demo# exit
+exit
+--Saindo do conteiner / Exiting container--
+root@ubuntu-xenial:/demo# hostname
+demo
+root@ubuntu-xenial:/demo#
+~~~
+
+We can notice that hostname was modified inside container but not on the host.
+
+
