@@ -302,6 +302,25 @@ Each example is in a git tag between *demo1* and *demo7*, we can check the tags 
 
 ~~~bash
 git tag --list
+demo1
+demo2
+demo3
+demo4
+demo5
+demo6
+demo7
+~~~
+
+We can change for a specific tag with the following:
+
+~~~bash
+git checkout demo1
+~~~
+
+Getting back to master branch:
+
+~~~bash
+git checkout master
 ~~~
 
 We also can check the differences between 2 tags with the following commands: 
@@ -310,6 +329,8 @@ We also can check the differences between 2 tags with the following commands:
 git diff demo1..demo2
 git diff demo2..demo3
 ~~~
+
+
 
 
 ### 11. Clean up
