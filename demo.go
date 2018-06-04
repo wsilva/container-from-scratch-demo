@@ -12,6 +12,8 @@ func main() {
 	case "run":
 		defer exiting()
 		run()
+	case "fork":
+		fork()
 	default:
 		panic("¯\\_(ツ)_/¯")
 	}
@@ -21,7 +23,7 @@ func run() {
 	fmt.Println("--Entrando no conteiner / Get into container--")
 	fmt.Printf("--Rodando comando %v / Running command %v --\n", os.Args[2:], os.Args[2:])
 
-	cmd := exec.Command(os.Args[2], os.Args[3:]...)
+	cmd := exec.Command("/proc/self/exe", append([]string{"fork"}, os.Args[2:]...)...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -29,6 +31,17 @@ func run() {
 		Cloneflags: syscall.CLONE_NEWUTS,
 	}
 
+	doStuff(cmd.Run())
+}
+
+func fork() {
+
+	cmd := exec.Command(os.Args[2], os.Args[3:]...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	doStuff(syscall.Sethostname([]byte("container")))
 	doStuff(cmd.Run())
 }
 

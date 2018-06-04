@@ -120,4 +120,18 @@ root@ubuntu-xenial:/demo#
 
 We can notice that hostname was modified inside container but not on the host.
 
+###  5. Third Example - Defining a container hostname
+
+Lets' rebuild and run bash again. Now we define a new hostname. But if we define before the ```cmd.Run()``` call we will define the host process not the container process. That's why we fork and exec so we can create a container with the run and then define the hostname inside the exec command.
+
+~~~bash
+root@ubuntu-xenial:/demo# go build demo.go
+root@ubuntu-xenial:/demo# ./demo run bash
+--Entrando no conteiner / Get into container--
+--Rodando comando [bash] / Running command [bash] --
+root@container:/demo# exit
+exit
+--Saindo do conteiner / Exiting container--
+root@ubuntu-xenial:/demo#
+~~~
 
