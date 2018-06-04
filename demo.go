@@ -29,7 +29,7 @@ func run() {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Cloneflags:   syscall.CLONE_NEWUTS | syscall.CLONE_NEWNS,
+		Cloneflags:   syscall.CLONE_NEWUTS | syscall.CLONE_NEWNS | syscall.CLONE_NEWPID,
 		Unshareflags: syscall.CLONE_NEWNS,
 	}
 
@@ -47,10 +47,12 @@ func fork() {
 	rootfs := "/rootfs-" + os.Args[2]
 	doStuff(syscall.Chroot(rootfs))
 	doStuff(os.Chdir("/"))
+	doStuff(syscall.Mount("proc", "proc", "proc", 0, ""))
 	os.Mkdir("/mytemp", 0755)
 	doStuff(syscall.Mount("mytemp", "mytemp", "tmpfs", 0, ""))
 	doStuff(cmd.Run())
 	doStuff(syscall.Unmount("mytemp", 0))
+	doStuff(syscall.Unmount("proc", 0))
 }
 
 func exiting() {

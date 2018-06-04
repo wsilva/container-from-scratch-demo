@@ -228,3 +228,27 @@ root@ubuntu-xenial:/demo#
 ~~~
 
 Yes, we need to remount ```/proc```
+
+### 8. Sixth Example - Isolate PID table
+
+Let's rebuild and run a container, then we check if ```ps aux``` works.
+
+~~~bash
+root@ubuntu-xenial:/demo# go build demo.go
+root@ubuntu-xenial:/demo# ./demo run ubuntu bash
+--Entrando no conteiner / Get into container--
+--Imagem usada ubuntu / Image in use ubuntu --
+--Rodando comando [bash] / Running command [bash] --
+root@container:/# ps aux
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.6  0.0   3376   976 ?        Sl   14:09   0:00 /proc/self/exe fork ubunt
+root         5  0.0  0.3  18292  3244 ?        S    14:09   0:00 bash
+root        10  0.0  0.2  34424  2880 ?        R+   14:09   0:00 ps aux
+root@container:/# exit
+exit
+--Saindo do conteiner / Exiting container--
+root@ubuntu-xenial:/demo#
+~~~
+
+Yes we have only the pids from process running inside the container.
+
