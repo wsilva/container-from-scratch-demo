@@ -174,3 +174,57 @@ root@ubuntu-xenial:/demo#
 ~~~
 
 Yes, the random-file exists inside and outside of the container.
+
+### 7. Fifth Example - Isolate file system
+
+Let's rebuild and run choosing one of the 5 rootfs available: alpine, centos, debian, fedora or ubuntu.
+
+One folder will be created inside the container, let's create one file inside this folder and check if it appears on the host.
+
+~~~bash
+root@ubuntu-xenial:/demo# go build demo.go
+root@ubuntu-xenial:/demo# ./demo run ubuntu bash
+--Entrando no conteiner / Get into container--
+--Imagem usada ubuntu / Image in use ubuntu --
+--Rodando comando [bash] / Running command [bash] --
+root@container:/# touch /mytemp/file-inside-container
+root@container:/# exit
+exit
+--Saindo do conteiner / Exiting container--
+root@ubuntu-xenial:/demo# ls -l /rootfs-ubuntu/ | grep mytemp
+root@ubuntu-xenial:/demo# ls -l /rootfs-ubuntu/mytemp/
+total 0
+root@ubuntu-xenial:/demo#
+~~~
+
+Yes, file was created and contained with filesystem isolation
+Tip for next example run a container again and look for it's pids table:
+
+~~~bash
+root@container:/# ps aux
+Error, do this: mount -t proc proc /proc
+root@container:/# exit
+exit
+panic: exit status 47
+
+goroutine 1 [running]:
+main.doStuff(0x4ea240, 0xc420082060)
+        /demo/demo.go:63 +0x4a
+main.fork()
+        /demo/demo.go:52 +0x2c4
+main.main()
+        /demo/demo.go:16 +0x6e
+--Saindo do conteiner / Exiting container--
+panic: exit status 2
+
+goroutine 1 [running]:
+main.doStuff(0x4ea240, 0xc42000a0e0)
+        /demo/demo.go:63 +0x4a
+main.run()
+        /demo/demo.go:36 +0x4d2
+main.main()
+        /demo/demo.go:14 +0x9f
+root@ubuntu-xenial:/demo#
+~~~
+
+Yes, we need to remount ```/proc```
