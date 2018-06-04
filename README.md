@@ -252,3 +252,46 @@ root@ubuntu-xenial:/demo#
 
 Yes we have only the pids from process running inside the container.
 
+### 9. Seventh Example - Limiting processes running with cgroups
+
+Let's rebuild and run a container. This time we need 2 terminal windows. Both must be on the vagrant box, at the first we will run a container.
+
+On firts window:
+
+~~~bash
+root@ubuntu-xenial:/demo# go build demo.go
+root@ubuntu-xenial:/demo# ./demo run ubuntu bash
+--Entrando no conteiner / Get into container--
+--Imagem usada ubuntu / Image in use ubuntu --
+--Rodando comando [bash] / Running command [bash] --
+root@container:/#
+~~~
+
+On the second one we will check how many process is the cgroup limit and which process are running 
+
+On second window:
+
+~~~bash
+root@ubuntu-xenial:/demo# cat /sys/fs/cgroup/pids/demo/cgroup.procs
+3233
+3237
+root@ubuntu-xenial:/demo# cat /sys/fs/cgroup/pids/demo/pids.max
+15
+root@ubuntu-xenial:/demo#
+~~~
+
+Then we will run a fork bomb and hope that cgroups limits the amount of forked process.
+
+First window:
+
+~~~bash
+root@ubuntu-xenial:/demo# ./demo run ubuntu bash
+--Entrando no conteiner / Get into container--
+--Imagem usada ubuntu / Image in use ubuntu --
+--Rodando comando [bash] / Running command [bash] --
+root@container:/# :() { : | : & }; :
+[1] 11
+bash: fork: retry: No child processes
+bash: fork: retry: No child processes
+...
+~~~

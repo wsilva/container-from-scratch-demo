@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"strconv"
 	"syscall"
 )
 
@@ -37,6 +40,7 @@ func run() {
 }
 
 func fork() {
+	cg()
 
 	cmd := exec.Command(os.Args[3], os.Args[4:]...)
 	cmd.Stdin = os.Stdin
@@ -53,6 +57,16 @@ func fork() {
 	doStuff(cmd.Run())
 	doStuff(syscall.Unmount("mytemp", 0))
 	doStuff(syscall.Unmount("proc", 0))
+}
+
+func cg() {
+	cgroups := "/sys/fs/cgroup/"
+	pids := filepath.Join(cgroups, "pids")
+	os.Mkdir(filepath.Join(pids, "demo"), 0755)
+	doStuff(ioutil.WriteFile(filepath.Join(pids, "demo/pids.max"), []byte("15"), 0700))
+	// Removes the new cgroup in place after the container exits
+	doStuff(ioutil.WriteFile(filepath.Join(pids, "demo/notify_on_release"), []byte("1"), 0700))
+	doStuff(ioutil.WriteFile(filepath.Join(pids, "demo/cgroup.procs"), []byte(strconv.Itoa(os.Getpid())), 0700))
 }
 
 func exiting() {
