@@ -295,3 +295,43 @@ bash: fork: retry: No child processes
 bash: fork: retry: No child processes
 ...
 ~~~
+
+### 10. Navigating between tags
+
+Each example is in a git tag between *demo1* and *demo7*, we can check the tags with: 
+
+~~~bash
+git tag --list
+~~~
+
+We also can check the differences between 2 tags with the following commands: 
+
+~~~bash
+git diff demo1..demo2
+git diff demo2..demo3
+~~~
+
+
+### 11. Clean up
+
+To leave VM shell
+
+~~~bash
+root@container:/# exit
+exit
+--Saindo do conteiner / Exiting container--
+root@ubuntu-xenial:/demo# exit
+logout
+vagrant@ubuntu-xenial:~$ exit
+logout
+Connection to 127.0.0.1 closed.
+[wsilva@localhost ]$
+~~~
+
+Then shut the VM down
+
+~~~bash 
+$ vagrant halt
+==> containerdemo: Attempting graceful shutdown of VM...
+[wsilva@localhost ]$
+~~~
